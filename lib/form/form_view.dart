@@ -49,17 +49,16 @@ class _InputFormField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<FormCubit, String>(
-      listener: (context, state) {
-        _controller.text = state;
+    return BlocBuilder<FormCubit, String>(
+      builder: (context, state) {
+        return TextFormField(
+          controller: _controller,
+          decoration: const InputDecoration(label: Text("Controller")),
+          onChanged: (text) {
+            context.read<FormCubit>().updateText(text);
+          },
+        );
       },
-      child: TextFormField(
-        controller: _controller,
-        decoration: const InputDecoration(label: Text("Controller")),
-        onChanged: (text) {
-          context.read<FormCubit>().updateText(text);
-        },
-      ),
     );
   }
 }
