@@ -13,10 +13,10 @@ class FormView extends StatelessWidget {
         body: Column(
           mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
+          children: [
             _InputFormField(),
-            _UniqueKeyFormField(),
-            _HelloStateButton(),
+            const _UniqueKeyFormField(),
+            const _HelloStateButton(),
           ],
         ),
       ),
@@ -41,21 +41,24 @@ class _HelloStateButton extends StatelessWidget {
 }
 
 class _InputFormField extends StatelessWidget {
-  const _InputFormField({
+  _InputFormField({
     Key? key,
   }) : super(key: key);
 
+  final _controller = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<FormCubit, String>(
-      builder: (context, state) {
-        return TextFormField(
-          initialValue: state,
-          onChanged: (text) {
-            context.read<FormCubit>().updateText(text);
-          },
-        );
+    return BlocListener<FormCubit, String>(
+      listener: (context, state) {
+        _controller.text = state;
       },
+      child: TextFormField(
+        controller: _controller,
+        onChanged: (text) {
+          context.read<FormCubit>().updateText(text);
+        },
+      ),
     );
   }
 }
