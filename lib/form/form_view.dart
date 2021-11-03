@@ -55,6 +55,7 @@ class _InputFormField extends StatelessWidget {
       },
       child: TextFormField(
         controller: _controller,
+        decoration: const InputDecoration(label: Text("Controller")),
         onChanged: (text) {
           context.read<FormCubit>().updateText(text);
         },
@@ -75,6 +76,7 @@ class _UniqueKeyFormField extends StatelessWidget {
         return TextFormField(
           key: UniqueKey(),
           initialValue: state,
+          decoration: const InputDecoration(label: Text("Unique Key")),
           onChanged: (text) {
             context.read<FormCubit>().updateText(text);
           },
