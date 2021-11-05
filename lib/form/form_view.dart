@@ -1,5 +1,5 @@
 import 'package:bloc_textfield/form/form.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide FormState;
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class FormView extends StatelessWidget {
@@ -8,15 +8,14 @@ class FormView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => FormCubit(),
+      create: (context) => FormBloc(),
       child: Scaffold(
         body: Column(
           mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.center,
-          children: [
+          children: const [
             _InputFormField(),
-            const _UniqueKeyFormField(),
-            const _HelloStateButton(),
+            _HelloStateButton(),
           ],
         ),
       ),
@@ -33,51 +32,48 @@ class _HelloStateButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return ElevatedButton(
       onPressed: () {
-        context.read<FormCubit>().updateText("Hello");
+        context.read<FormBloc>().add(HelloButtonTapped("Hello"));
       },
       child: const Text("Set state to 'Hello'"),
     );
   }
 }
 
-class _InputFormField extends StatelessWidget {
-  _InputFormField({
+class _InputFormField extends StatefulWidget {
+  const _InputFormField({
     Key? key,
   }) : super(key: key);
 
-  final _controller = TextEditingController();
+  @override
+  State<_InputFormField> createState() => _InputFormFieldState();
+}
+
+class _InputFormFieldState extends State<_InputFormField> {
+  late TextEditingController _controller;
+
+  @override
+  void initState() {
+    _controller = TextEditingController();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<FormCubit, String>(
+    return BlocConsumer<FormBloc, FormState>(
+      listenWhen: (previous, current) => current.refresh,
+      listener: (context, state) => _controller.text = state.text,
       builder: (context, state) {
         return TextFormField(
           controller: _controller,
           decoration: const InputDecoration(label: Text("Controller")),
           onChanged: (text) {
-            context.read<FormCubit>().updateText(text);
-          },
-        );
-      },
-    );
-  }
-}
-
-class _UniqueKeyFormField extends StatelessWidget {
-  const _UniqueKeyFormField({
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<FormCubit, String>(
-      builder: (context, state) {
-        return TextFormField(
-          key: UniqueKey(),
-          initialValue: state,
-          decoration: const InputDecoration(label: Text("Unique Key")),
-          onChanged: (text) {
-            context.read<FormCubit>().updateText(text);
+            context.read<FormBloc>().add(TextFieldUpdated(text));
           },
         );
       },
